@@ -233,7 +233,7 @@ static COUNTER *getip_thread_counter = NULL;
 static UINT max_getip_thread = 0;
 
 
-static char *cipher_list = "RC4-MD5 RC4-SHA AES128-SHA AES256-SHA DES-CBC-SHA DES-CBC3-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA";
+static char *cipher_list = "DHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-SHA256 DHE-RSA-AES256-SHA DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-SHA256 DHE-RSA-AES128-SHA AES256-GCM-SHA384 AES256-SHA256 AES256-SHA AES128-GCM-SHA256 AES128-SHA256 AES128-SHA";
 static LIST *ip_clients = NULL;
 
 static LIST *local_mac_list = NULL;
@@ -5821,7 +5821,7 @@ SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh)
 	{
 		if (server_mode)
 		{
-			SSL_CTX_set_ssl_version(ssl_ctx, TLSv1_server_method());
+			SSL_CTX_set_ssl_version(ssl_ctx, TLSv1_2_server_method());
 
 			AddChainSslCertOnDirectory(ssl_ctx);
 
@@ -5832,7 +5832,7 @@ SSL_PIPE *NewSslPipe(bool server_mode, X *x, K *k, DH_CTX *dh)
 		}
 		else
 		{
-			SSL_CTX_set_ssl_version(ssl_ctx, TLSv1_client_method());
+			SSL_CTX_set_ssl_version(ssl_ctx, TLSv1_2_client_method());
 		}
 
 		//SSL_CTX_set_verify(ssl_ctx, SSL_VERIFY_PEER, cb_test);
@@ -12966,29 +12966,9 @@ bool StartSSLEx(SOCK *sock, X *x, K *priv, bool client_tls, UINT ssl_timeout, ch
 	{
 		if (sock->ServerMode)
 		{
-			if (sock->AcceptOnlyTls == false)
-			{
-				SSL_CTX_set_ssl_version(ssl_ctx, SSLv23_method());
-			}
-			else
-			{
-				SSL_CTX_set_ssl_version(ssl_ctx, TLSv1_method());
-			}
-
 			Unlock(openssl_lock);
 			AddChainSslCertOnDirectory(ssl_ctx);
 			Lock(openssl_lock);
-		}
-		else
-		{
-			if (client_tls == false)
-			{
-				SSL_CTX_set_ssl_version(ssl_ctx, SSLv3_method());
-			}
-			else
-			{
-				SSL_CTX_set_ssl_version(ssl_ctx, TLSv1_client_method());
-			}
 		}
 		sock->ssl = SSL_new(ssl_ctx);
 		SSL_set_fd(sock->ssl, (int)sock->socket);
@@ -17753,7 +17733,7 @@ DH *TmpDhCallback(SSL *ssl, int is_export, int keylength)
 // Create the SSL_CTX
 struct ssl_ctx_st *NewSSLCtx(bool server_mode)
 {
-	struct ssl_ctx_st *ctx = SSL_CTX_new(SSLv23_method());
+	struct ssl_ctx_st *ctx = SSL_CTX_new(TLSv1_2_method());
 
 #ifdef	SSL_OP_NO_TICKET
 	SSL_CTX_set_options(ctx, SSL_OP_NO_TICKET);

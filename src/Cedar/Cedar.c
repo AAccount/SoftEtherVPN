@@ -1750,7 +1750,7 @@ CEDAR *NewCedar(X *server_x, K *server_k)
 
 	c->TrafficDiffList = NewList(NULL);
 
-	SetCedarCipherList(c, "RC4-MD5");
+	SetCedarCipherList(c, "DHE-RSA-AES256-GCM-SHA384");
 
 	c->ClientId = _II("CLIENT_ID");
 
